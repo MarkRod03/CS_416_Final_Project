@@ -1,3 +1,13 @@
 from django.db import models
 
-# Create your models here.
+
+class Events(models.Model):
+
+    name = models.CharField(max_length=150)
+    venue = models.CharField(max_length=150)
+    address = models.CharField(max_length=200)
+    link = models.CharField(max_length=300)
+    date = models.CharField(max_length=150)
+    time = models.CharField(max_length=150)
+    image = models.CharField(max_length=300)
+
