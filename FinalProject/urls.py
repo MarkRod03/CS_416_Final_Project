@@ -20,5 +20,6 @@ from ticketmaster import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.search)
+    path('', views.search),
+    path('add_comment/', views.add_comment, name='add_comment')
 ]

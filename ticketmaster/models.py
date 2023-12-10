@@ -11,3 +11,8 @@ class Events(models.Model):
     time = models.CharField(max_length=150)
     image = models.CharField(max_length=300)
 
+
+class Comments(models.Model):
+
+    comment = models.TextField()
+    event_id = models.CharField(max_length=50)

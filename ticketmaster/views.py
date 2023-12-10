@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import requests
 import math
 import datetime
+#from .Forms import CommentForm
+from django.http import JsonResponse
+from .models import Comments
 
 
 # Create your views here.
@@ -46,6 +49,7 @@ def search(request):
                 events = search_info["_embedded"]["events"]
                 event_num = len(events)
                 event_name = []
+                event_id = []
                 image_num = []
                 event_image = []
                 event_start = []
@@ -60,9 +64,11 @@ def search(request):
                 date = []
                 time = []
                 event_info = None
+                comments_list = []
                 for i in range(event_num):
                     event = events[i]
                     event_name.append(event["name"])
+                    event_id.append(event["id"])
                     image_num.append(len(event["images"]))
                     event_image.append(event["images"][math.floor(((image_num[i] - 1) / 2))]["url"])
                     event_start.append(event["dates"]["start"])
@@ -72,6 +78,17 @@ def search(request):
                     state.append(venue[i]["state"]["name"])
                     address.append(venue[i]["address"]["line1"])
                     url.append(event["url"])
+
+
+
+                    event_id2 = event["id"]
+                    print(event_id2)
+
+                    comments = Comments.objects.filter(event_id__contains=f"{event_id2}")
+                    comments_list.append(comments)
+
+                    for comment in comments:
+                        print('comment:', comment.comment)
 
                     # display time
                     no_specific_time.append(event_start[i]["noSpecificTime"])
@@ -90,7 +107,11 @@ def search(request):
                             time[i] = str(int(time_vals[0])) + ':' + time_vals[1] + ' AM'
                     else:
                         date[i] = "No Date"
-                    event_info = zip(event_name, event_image, time, venue_name, city_name, state, address, url, date)
+                    event_info = zip(event_name, event_image, time, venue_name, city_name, state, address, url, date,
+                                     event_id, comments_list)
+
+
+                #print(comments)
 
                 context = {'search_alert': search_alert, 'city_alert': city_alert, 'no_results': no_results,
                            'display': display, 'event_num': event_num, 'event_info': event_info}
@@ -98,3 +119,38 @@ def search(request):
 
     context = {'search_alert': search_alert, 'city_alert': city_alert, 'no_results': no_results, 'display': display}
     return render(request, 'ticketmaster.html', context)
+
+
+#    def comments(request):
+# def create_comments(request):
+#     # Create a form instance and populate it with data from the request
+#     form = CommentForm(request.POST or None)
+#     # check whether it's valid:
+#     if form.is_valid():
+#         # save the record into the db
+#         form.save()
+#         # after saving redirect to view_product page
+#         return redirect('search')
+#
+#     # if the request does not have post data, a blank form will be rendered
+#     return None
+
+
+def add_comment(request):
+    if request.method == 'POST':
+        event_id = request.POST.get('event_id')
+        comment = request.POST.get('comment')
+        print(event_id + '  ' + comment)
+        Comments.objects.create(comment=comment, event_id=event_id)
+        return JsonResponse(
+
+            {
+                'added': True,
+                'message': 'Success'
+            }
+        )
+    else:
+        return JsonResponse(
+
+            {'message': 'Something went wrong'}
+        )
