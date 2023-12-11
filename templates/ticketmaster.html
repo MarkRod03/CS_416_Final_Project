@@ -103,12 +103,12 @@
                                         {% if forloop.counter == 1 %}
                                         	  <h4>Comments:</h4>
                                         {% endif %}
-                                                <div class="col-10">
+                                                <div class="col-10" id="comment--{{ event.9 }}">
                                                     <p>{{ comment.comment }}</p>
                                                 </div>
                                                 <div class="col-2 text-end">
-                                                    <button class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
-                                                    <button class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
+                                                    <button onclick="updateComment('{{ event.9 }}')" class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
+                                                    <button onclick="deleteComment('{{ event.9 }}')" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
                                                 </div>
                                      {% endfor %}
 
@@ -150,8 +150,9 @@
                                         '                                            </div>\n' +
                                         '                                            <div class="col-2 text-end">\n' +
                                         '                                                <button class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>\n' +
-                                        '                                                <button class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>\n' +
-                                        '                                            </div>')
+                                        '                                                <button onclick="deleteComment(event_id)" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>\n' +
+                                        '                                            </div>');
+
                     }
 
                 }
@@ -163,6 +164,29 @@
     function clearField(event_id) {
         $('#message-'+ event_id).val("");
     }
+
+    function deleteComment(event_id){
+            $.ajax({
+                url: '{% url 'delete_comment' %}',
+                type: 'POST',
+                data : {
+                         event_id : event_id,
+                         csrfmiddlewaretoken: '{{ csrf_token }}' // We need csrfmiddlewaretoken since this is a post reques
+                },
+                success: function (response) {
+                    console.log(response);
+                    if (response.removed) {
+                        $('#comment-'+ event_id).remove();
+                    }
+                }
+            });
+    }
+
+    function updateComment(event_id){
+
+    }
+
+
 
 </script>
 </body>

@@ -151,3 +151,23 @@ def add_comment(request):
 
             {'message': 'Something went wrong'}
         )
+
+
+def delete_comment(request):
+    if request.method == 'POST':
+        event_id = request.POST.get('event_id')
+        if event_id is not None:
+            comment = Comments.objects.get(id=event_id)
+            comment.delete()
+            return JsonResponse(
+                {
+                    'removed': True,
+                    'message': 'Success'
+                }
+            )
+    else:
+        return JsonResponse(
+
+            {'message': 'Something went wrong'}
+        )
+
