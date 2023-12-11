@@ -86,8 +86,8 @@
                                                                 <textarea class="form-control" id="message-{{ event.9 }}"></textarea>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                                <button onclick="sendComment('{{ event.9 }}')" type="button" class="btn btn-primary">Send message</button>
+                                                                <button onclick="clearField('{{ event.9 }}')" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                <button onclick="sendComment('{{ event.9 }}')" type="button" class="btn btn-primary" data-bs-dismiss="modal">Send message</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -103,14 +103,13 @@
                                         {% if forloop.counter == 1 %}
                                         	  <h4>Comments:</h4>
                                         {% endif %}
-
-                                            <div class="col-10">
-                                                <p>{{ comment.comment }}</p>
-                                            </div>
-                                            <div class="col-2 text-end">
-                                                <span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span>
-                                                <span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span>
-                                            </div>
+                                                <div class="col-10">
+                                                    <p>{{ comment.comment }}</p>
+                                                </div>
+                                                <div class="col-2 text-end">
+                                                    <button class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
+                                                    <button class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
+                                                </div>
                                      {% endfor %}
 
                                         </div>
@@ -132,34 +131,39 @@
         const message = $('#message-'+ event_id).val();
         console.log(message)
         if(message===""){
-            alert();
-        }
+            alert("Comment Cannot be Blank");
+        } else {
+            $.ajax({
+                url: '{% url 'add_comment' %}',
+                type: 'POST',
+                data: {
+                    event_id: event_id,
+                    comment: message,
+                    csrfmiddlewaretoken: '{{ csrf_token }}' // We need csrfmiddlewaretoken since this is a post
+                },
+                success: function (response) {
+                    console.log(response);
+                    if (response.added) {
+                                    $('#comment-'+ event_id).append('' +
+                                        '     <div class="col-10">\n' +
+                                        `                                                <p>${message}</p>\n ` +
+                                        '                                            </div>\n' +
+                                        '                                            <div class="col-2 text-end">\n' +
+                                        '                                                <button class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>\n' +
+                                        '                                                <button class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>\n' +
+                                        '                                            </div>')
+                    }
 
-        $.ajax({
-            url: '{% url 'add_comment' %}',
-            type: 'POST',
-            data: {
-                event_id: event_id,
-                comment: message,
-                csrfmiddlewaretoken: '{{ csrf_token }}' // We need csrfmiddlewaretoken since this is a post
-            },
-            success: function (response) {
-                console.log(response);
-                if (response.added) {
-                                $('#comment-'+ event_id).append('' +
-                          '<div class="col-10">\n' +
-                          `                                                <p>${message}</p>\n ` +
-                          '                                            </div>\n' +
-                          '                                            <div class="col-2 text-end">\n' +
-                          '                                                <span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span>\n' +
-                          '                                                <span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span>\n' +
-                          '                                            </div>')
                 }
-
-            }
-        });
-
+            });
+            clearField(event_id);
+        }
     }
+
+    function clearField(event_id) {
+        $('#message-'+ event_id).val("");
+    }
+
 </script>
 </body>
 </html>

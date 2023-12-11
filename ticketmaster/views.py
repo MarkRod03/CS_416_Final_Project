@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 import requests
 import math
 import datetime
-#from .Forms import CommentForm
+# from .Forms import CommentForm
 from django.http import JsonResponse
 from .models import Comments
 
@@ -79,8 +79,6 @@ def search(request):
                     address.append(venue[i]["address"]["line1"])
                     url.append(event["url"])
 
-
-
                     event_id2 = event["id"]
                     print(event_id2)
 
@@ -110,8 +108,7 @@ def search(request):
                     event_info = zip(event_name, event_image, time, venue_name, city_name, state, address, url, date,
                                      event_id, comments_list)
 
-
-                #print(comments)
+                # print(comments)
 
                 context = {'search_alert': search_alert, 'city_alert': city_alert, 'no_results': no_results,
                            'display': display, 'event_num': event_num, 'event_info': event_info}
