@@ -103,12 +103,18 @@
                                         {% if forloop.counter == 1 %}
                                         	  <h4>Comments:</h4>
                                         {% endif %}
-                                                <div class="col-10" id="comment-{{ comment.id }}">
+                                                <div class="col-lg-10 col-8" id="comment-{{ comment.id }}">
                                                     <p>{{ comment.comment }}</p>
                                                 </div>
-                                                <div class="col-2 text-end" id="buttons-{{ comment.id }}">
-                                                    <button onclick="loadText('{{ comment.comment }}', '{{ comment.id }}')" data-bs-toggle="modal" data-bs-target="#update-{{ comment.id }}" data-bs-whatever="@fat" class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
-                                                    <button onclick="deleteComment('{{ comment.id }}')" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
+                                                <div class="col-lg-2 col-4 text-end" id="buttons-{{ comment.id }}">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <button onclick="loadText('{{ comment.comment }}', '{{ comment.id }}')" data-bs-toggle="modal" data-bs-target="#update-{{ comment.id }}" data-bs-whatever="@fat" class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <button onclick="deleteComment('{{ comment.id }}')" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 <div class="modal fade" id="update-{{ comment.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
