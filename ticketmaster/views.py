@@ -165,7 +165,8 @@ def delete_comment(request):
                 {
                     'removed': True,
                     'message': 'Success',
-                    'deleted_id': comment_id
+                    'deleted_id': comment_id,
+                    'event_id': comment.event_id
                 }
             )
     else:
