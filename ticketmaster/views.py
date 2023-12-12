@@ -138,12 +138,14 @@ def add_comment(request):
         event_id = request.POST.get('event_id')
         comment = request.POST.get('comment')
         print(event_id + '  ' + comment)
-        Comments.objects.create(comment=comment, event_id=event_id)
+        new_comment = Comments.objects.create(comment=comment, event_id=event_id)
+        new_comment.save()
         return JsonResponse(
 
             {
                 'added': True,
-                'message': 'Success'
+                'message': 'Success',
+                'comment_id': new_comment.id
             }
         )
     else:
@@ -155,14 +157,15 @@ def add_comment(request):
 
 def delete_comment(request):
     if request.method == 'POST':
-        event_id = request.POST.get('event_id')
-        if event_id is not None:
-            comment = Comments.objects.get(id=event_id)
+        comment_id = request.POST.get('comment_id')
+        if comment_id is not None:
+            comment = Comments.objects.get(id=comment_id)
             comment.delete()
             return JsonResponse(
                 {
                     'removed': True,
-                    'message': 'Success'
+                    'message': 'Success',
+                    'deleted_id': comment_id
                 }
             )
     else:
@@ -171,3 +174,24 @@ def delete_comment(request):
             {'message': 'Something went wrong'}
         )
 
+
+def update_comment(request):
+    if request.method == 'POST':
+        comment = request.POST.get('comment')
+        comment_id = request.POST.get('comment_id')
+        if comment_id is not None:
+            comment_row = Comments.objects.get(id=comment_id)
+            comment_row.comment = comment
+            comment_row.save()
+            return JsonResponse(
+                {
+                    'updated': True,
+                    'message': 'Success',
+                    'updated_val': comment_row.comment
+                }
+            )
+    else:
+        return JsonResponse(
+
+            {'message': 'Something went wrong'}
+        )

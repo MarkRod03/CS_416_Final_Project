@@ -76,7 +76,7 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h1 class="modal-title fs-5" id="exampleModalLabel">New message</h1>
+                                                        <h1 class="modal-title fs-5" id="exampleModalLabel">New Message</h1>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
@@ -87,7 +87,7 @@
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button onclick="clearField('{{ event.9 }}')" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                                <button onclick="sendComment('{{ event.9 }}')" type="button" class="btn btn-primary" data-bs-dismiss="modal">Send message</button>
+                                                                <button onclick="sendComment('{{ event.9 }}')" type="button" class="btn btn-primary" data-bs-dismiss="modal">Send Message</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -103,13 +103,37 @@
                                         {% if forloop.counter == 1 %}
                                         	  <h4>Comments:</h4>
                                         {% endif %}
-                                                <div class="col-10" id="comment--{{ event.9 }}">
+                                                <div class="col-10" id="comment-{{ comment.id }}">
                                                     <p>{{ comment.comment }}</p>
                                                 </div>
-                                                <div class="col-2 text-end">
-                                                    <button onclick="updateComment('{{ event.9 }}')" class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
-                                                    <button onclick="deleteComment('{{ event.9 }}')" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
+                                                <div class="col-2 text-end" id="buttons-{{ comment.id }}">
+                                                    <button onclick="loadText('{{ comment.comment }}', '{{ comment.id }}')" data-bs-toggle="modal" data-bs-target="#update-{{ comment.id }}" data-bs-whatever="@fat" class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>
+                                                    <button onclick="deleteComment('{{ comment.id }}')" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>
                                                 </div>
+
+                                                <div class="modal fade" id="update-{{ comment.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Message</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form>
+                                                            <div class="mb-3">
+                                                                <label for="message-text" class="col-form-label">Message:</label>
+                                                                <textarea class="form-control" id="up_message-{{ comment.id }}"></textarea>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                <button onclick="updateComment({{ comment.id }})" type="button" class="btn btn-primary" data-bs-dismiss="modal">Update Message</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                      {% endfor %}
 
                                         </div>
@@ -127,9 +151,9 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script>
     function sendComment(event_id){
-        console.log("id: " + event_id)
+        //console.log("id: " + event_id)
         const message = $('#message-'+ event_id).val();
-        console.log(message)
+        //console.log(message)
         if(message===""){
             alert("Comment Cannot be Blank");
         } else {
@@ -141,17 +165,46 @@
                     comment: message,
                     csrfmiddlewaretoken: '{{ csrf_token }}' // We need csrfmiddlewaretoken since this is a post
                 },
+                dataType: 'json',
                 success: function (response) {
-                    console.log(response);
+                    //console.log(response);
+                    const comment_id = response.comment_id;
                     if (response.added) {
-                                    $('#comment-'+ event_id).append('' +
-                                        '     <div class="col-10">\n' +
+                                    const comment_div = $('#comment-'+ event_id);
+                                    if(comment_div.children().length < 1) {
+                                        comment_div.append('<h4>Comments:</h4>');
+                                    }
+                                    comment_div.append('' +
+                                        `     <div class="col-10" id="comment-${comment_id}">\n` +
                                         `                                                <p>${message}</p>\n ` +
                                         '                                            </div>\n' +
-                                        '                                            <div class="col-2 text-end">\n' +
-                                        '                                                <button class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>\n' +
-                                        '                                                <button onclick="deleteComment(event_id)" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>\n' +
-                                        '                                            </div>');
+                                        `                                            <div class="col-2 text-end" id="buttons-${comment_id}">\n` +
+                                        `                                                <button onclick="loadText('${message}', '${comment_id}')" data-bs-toggle="modal" data-bs-target="#update-${comment_id}" data-bs-whatever="@fat" class="btn"><span class="fs-3 text-primary"><i class="bi bi-pencil-square"></i></span></button>\n` +
+                                        `                                                <button onclick="deleteComment(${comment_id})" class="btn"><span class="fs-3 text-danger"><i class="bi bi-trash3-fill"></i></span></button>\n` +
+                                        '                                            </div>\n' +
+                                        `                                            <div class="modal fade" id="update-${comment_id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">\n` +
+                                        '                                                    <div class="modal-dialog">\n' +
+                                        '                                                        <div class="modal-content">\n' +
+                                        '                                                            <div class="modal-header">\n' +
+                                        '                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Message</h1>\n' +
+                                        '                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>\n' +
+                                        '                                                            </div>\n' +
+                                        '                                                            <div class="modal-body">\n' +
+                                        '                                                                <form>\n' +
+                                        '                                                                    <div class="mb-3">\n' +
+                                        '                                                                        <label for="message-text" class="col-form-label">Message:</label>\n' +
+                                        `                                                                        <textarea class="form-control" id="up_message-${comment_id}"></textarea>\n` +
+                                        '                                                                    </div>\n' +
+                                        '                                                                    <div class="modal-footer">\n' +
+                                        '                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>\n' +
+                                        `                                                                        <button onclick="updateComment(${comment_id})" type="button" class="btn btn-primary" data-bs-dismiss="modal">Update Message</button>\n` +
+                                        '                                                                    </div>\n' +
+                                        '                                                                </form>\n' +
+                                        '                                                            </div>\n' +
+                                        '                                                        </div>\n' +
+                                        '                                                    </div>\n' +
+                                        '                                                </div>'
+                                    )
 
                     }
 
@@ -165,25 +218,59 @@
         $('#message-'+ event_id).val("");
     }
 
-    function deleteComment(event_id){
+    function deleteComment(comment_id){
             $.ajax({
                 url: '{% url 'delete_comment' %}',
                 type: 'POST',
                 data : {
-                         event_id : event_id,
+                         comment_id : comment_id,
                          csrfmiddlewaretoken: '{{ csrf_token }}' // We need csrfmiddlewaretoken since this is a post reques
                 },
                 success: function (response) {
-                    console.log(response);
+                    //console.log(response);
                     if (response.removed) {
-                        $('#comment-'+ event_id).remove();
+                        //console.log(response.deleted_id);
+                        const removed_comment = $('#comment-'+ response.deleted_id);
+                        const siblings = removed_comment.siblings().length;
+                        //console.log(siblings);
+                        if(siblings <= 2) {
+                            removed_comment.parent().empty();
+                        } else {
+                            removed_comment.remove();
+                            $('#buttons-' + response.deleted_id).remove();
+                        }
                     }
                 }
             });
     }
 
-    function updateComment(event_id){
+    function loadText(comment_comment, comment_id) {
+        $("#up_message-" + comment_id).val(comment_comment);
+    }
 
+    function updateComment(comment_id){
+        const message = $('#up_message-'+ comment_id).val();
+        if(message===""){
+            alert("Comment Cannot be Blank");
+        } else {
+            $.ajax({
+                url: '{% url 'update_comment' %}',
+                type: 'POST',
+                data: {
+                    comment_id: comment_id,
+                    comment: message,
+                    csrfmiddlewaretoken: '{{ csrf_token }}' // We need csrfmiddlewaretoken since this is a post
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.updated) {
+                        $("#comment-" + comment_id).children("p").text(response.updated_val);
+                        $("#buttons-" + comment_id).children(":first").attr("onclick",`loadText('${response.updated_val}','${comment_id}')`);
+                    }
+
+                }
+            });
+        }
     }
 
 
